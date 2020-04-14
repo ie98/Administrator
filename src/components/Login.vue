@@ -64,13 +64,20 @@ export default {
   },
   methods: {
     loginVerify() {
+      // debugger
+      var temp =1;
+      temp+=1;
       this.$refs.loginFromRef.validate(async valid => {
         console.log(valid)
         if (!valid) return
         const { data: res } = await this.$http.post('/adminLogin', this.loginFrom) //从返回的对象中拿到data属性，并重命名为res
         console.log(res)
-        if (res !== null && res.meta.status == 1)
-          return this.$message.error('登陆失败')
+        if (res !== null && res.meta.status == 1){
+ this.$message.error('登陆失败')
+   return
+        }
+        
+
         this.$message.success('登陆成功')
         console.log(res)
         //获取token存入sessionStorage
@@ -81,9 +88,16 @@ export default {
         window.sessionStorage.setItem('shopname', res.shopname)
         console.log(res.token)
         //通过编程式导航跳转到主页
-        setTimeout(() => {
-           this.$router.push('/home')
+        if(res.authority == 'A'){
+          setTimeout(() => {
+           this.$router.push('/admin')
         }, 300);
+        }else if(res.authority == 'B'){
+          setTimeout(() => {
+           this.$router.push('/shopKeeper')
+        }, 300);
+        }
+        
        
       })
     }

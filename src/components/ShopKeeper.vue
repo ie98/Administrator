@@ -31,7 +31,9 @@
               >订单管理</a
             ></el-menu-item
           >
-        </el-menu></el-header
+        </el-menu>
+        <span> Admin</span>
+        </el-header
       >
 
       <el-main style=" height:1000px ; background:#D0D0D0">
@@ -120,7 +122,7 @@
             <img :src="info.image" style=" height:100px ; width : 80%"  >
             <h4>{{ info.name }}</h4>
             
-            <div > <el-input-number v-model="info.num" @change="handleChange" :min="0" :max="10" size="small" label="描述文字"></el-input-number></div>
+            <div > <el-input-number v-model="info.num" :min="0" :max="10" size="small" label="描述文字"></el-input-number></div>
             <div class="product-cost">¥ {{ info.cost }}</div>
             <!-- <div class="product-add-cart" @click.prevent="handleCart">加入购物车</div> -->
         <!-- </router-link> -->

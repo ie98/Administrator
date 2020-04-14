@@ -25,7 +25,14 @@ import {
   Alert,
   Table,
   TableColumn,
-  InputNumber
+  InputNumber,
+  BreadcrumbItem,
+  Breadcrumb,
+  Card,
+  Switch,
+  Tooltip,
+  Pagination,
+  MessageBox
 } from 'element-ui'
 
 Vue.use(Button)
@@ -52,5 +59,12 @@ Vue.use(Alert)
 Vue.use(Table)
 Vue.use(TableColumn)
 Vue.use(InputNumber)
+Vue.use(Breadcrumb)
+Vue.use(BreadcrumbItem)
+Vue.use(Card)
+Vue.use(Switch)
+Vue.use(Tooltip)
+Vue.use(Pagination)
 //将Message组件挂在到Vue的原型对象上，使得全局可用
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox
