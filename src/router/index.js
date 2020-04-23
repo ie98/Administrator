@@ -8,10 +8,21 @@ import Case from '../components/Case.vue'
 import AdminInfo from '../components/info/AdminInfo.vue'
 import UserInfo from '../components/info/UserInfo.vue'
 import RecordInfo from '../components/info/RecordInfo.vue'
+import FoodRecordInfo from '../components/info/FoodRecordInfo.vue'
 import AddUser from '../components/add/AddUser.vue'
+import AddFood from '../components/add/AddFood.vue'
+import AddRole from '../components/add/AddRole.vue'
+import AddShop from '../components/add/AddShop.vue'
 import EditUser from '../components/edit/EditUser.vue'
+import EditShop from '../components/edit/EditShop.vue'
+import EditRole from '../components/edit/EditRole.vue'
+import EditFood from '../components/edit/EditFood.vue'
 import AddAdmin from '../components/add/AddAdmin.vue'
 import EditAdmin from '../components/edit/EditAdmin.vue'
+import Authority from '../components/authority/Authority.vue'
+import AuthorityList from '../components/authority/AuthorityList.vue'
+import FoodInfo from '../components/info/FoodInfo.vue'
+import ShopInfo from '../components/info/ShopInfo.vue'
 
 Vue.use(VueRouter)
 
@@ -32,6 +43,10 @@ const routes = [
     path:'/admin',
     component: Admin,
     children:[
+      {
+        path: '/foodRecordInfo',
+        component: FoodRecordInfo
+      },
       {
         path:'/adminInfo' ,
         component:AdminInfo ,
@@ -63,9 +78,57 @@ const routes = [
       {
         path:'/recordInfo',
         component:RecordInfo
-      }
+      },
+      {
+        path:'/authority',
+        component:Authority,
+        children:[
+          {
+            path:'/addRole',
+            component:AddRole
+          },
+          {
+            path:'/editRole',
+            component:EditRole
+          }
+        ]
+      },
+      {
+        path:'/authorityList',
+        component:AuthorityList
+      },
+      {
+        path:'/foodInfo',
+        component:FoodInfo,
+        children:[
+          {
+            path:'/editFood',
+            component: EditFood
+          },
+          {
+            path:'/addFood',
+            component: AddFood
+          }
+        ]
+      },
+      {
+        path:'/ShopInfo',
+        component:ShopInfo,
+        children:[
+          {
+            path:'/editShop',
+            component: EditShop
+          },
+          {
+            path:'/addShop',
+            component: AddShop
+          }
+        ]
+      },
+      
     ]
   },
+  
   {
     path: '/food',
     component: Food
@@ -89,8 +152,9 @@ router.beforeEach((to, from, next) => {
   const bool = window.sessionStorage.getItem('token')
   if (!bool) return next('/login')
   if (to.path == '/admin') {
-   if(window.sessionStorage.getItem('authority') == 'A') return next()
-   else return next('/login')
+  //  if(window.sessionStorage.getItem('authority') == 'A') return next()
+  //  else return next('/login')
+  return next()
   } 
   if (to.path == '/shopKeeper') {
     if(window.sessionStorage.getItem('authority') == 'B') return next()

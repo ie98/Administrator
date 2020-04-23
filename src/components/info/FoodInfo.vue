@@ -1,10 +1,10 @@
 <template>
   <div>
-    <v-editUser
+    <v-editFood
       v-if="edit.showEdit"
-      :user="edit.user"
+      :food="edit.food"
       @notShowEdit="notShow"
-    ></v-editUser>
+    ></v-editFood>
     <router-view></router-view>
     <!-- 面包屑 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -27,12 +27,12 @@
               :disabled="disabled.select"
               slot="append"
               icon="el-icon-search"
-              @click="selectUser"
+              @click="selectFood"
             ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addUser"
+          <router-link to="/addFood"
             ><el-button :disabled = "disabled.add" type="primary">添加</el-button></router-link
           >
         </el-col>
@@ -43,18 +43,17 @@
         class="table"
         border
         stripe
-        :data="allUser"
+        :data="allFood"
         style="width: 100%;"
       >
         <el-table-column type="index"></el-table-column>
-        <el-table-column prop="username" label="姓名"> </el-table-column>
         <el-table-column prop="id" label="id"> </el-table-column>
-        <el-table-column prop="college" label="学院"> </el-table-column>
-        <el-table-column prop="grade" label="年级"> </el-table-column>
-        <el-table-column prop="password" label="密码"> </el-table-column>
-        <el-table-column prop="phone" label="手机号"> </el-table-column>
-
-        <el-table-column label="状态">
+        <el-table-column prop="foodid" label="食品ID"> </el-table-column>
+        <el-table-column prop="foodname" label="食品名称"> </el-table-column>
+        <el-table-column prop="price" label="价格"> </el-table-column>
+        <el-table-column prop="shopname" label="商店名称"> </el-table-column>
+          <el-table-column prop="img" label="图片名称"> </el-table-column>
+          <el-table-column label="状态">
           <template slot-scope="scope">
             <el-tooltip
               class="item"
@@ -65,7 +64,7 @@
             >
               <el-switch
                 :disabled="disabled.forbidden"
-                v-model="scope.row.state"
+                v-model="scope.row.forbid"
                 @change="forbidden(scope.row)"
               ></el-switch>
             </el-tooltip>
@@ -85,7 +84,7 @@
                 type="primary"
                 icon="el-icon-edit"
                 size="small"
-                @click="editUser(scope.row)"
+                @click="editFood(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -101,7 +100,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="small"
-                @click="deleteUser(scope.row)"
+                @click="deleteFood(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -122,10 +121,10 @@
   </div>
 </template>
 <script>
-import EditUser from "../edit/EditUser";
+import EditFood from "../edit/EditFood";
 export default {
   components: {
-    "v-editUser": EditUser
+    "v-editFood": EditFood
   },
 
   data() {
@@ -142,7 +141,7 @@ export default {
       },
       edit: {
         showEdit: false,
-        user: {}
+        food: {}
       },
 
       queryInfo: {
@@ -150,42 +149,42 @@ export default {
         pageSize: 5
       },
       query: "",
-      allUser: [],
+      allFood: [],
       total: 0,
       as: true
     };
   },
   created() {
-    this.selectAllUser();
+    this.selectAllFood();
     this.getAutoArr()
   },
   methods: {
-    async selectAllUser() {
+    async selectAllFood() {
       const { data: res } = await this.$http.post(
-        "/selectAllUser",
+        "/selectAllFood",
         this.queryInfo
       );
       console.log(res);
-      this.allUser = res.list;
+      this.allFood = res.list;
       this.total = res.num;
-      console.log(this.allUser);
+      console.log(this.allFood);
       // this.showAllAdmin = false;
       // this.showAllUser = true;
       // this.showAllRecord = false;
     },
-    async selectUser() {
-      const { data: res } = await this.$http.get("/selectUser", {
+    async selectFood() {
+      const { data: res } = await this.$http.get("/selectFood", {
         params: { query: this.query }
       });
       if (res != null) {
-        this.allUser = [];
+        this.allFood = [];
         for (let index = 0; index < res.length; index++) {
-          this.allUser.push(res[index]);
+          this.allFood.push(res[index]);
           console.log(res[index]);
-          console.log(this.allUser);
+          console.log(this.allFood);
         }
-        this.allUser.push(res);
-        console.log("allUser");
+        this.allFood.push(res);
+        console.log("allFood");
         console.log(res);
       } else {
         this.$message.error("没有这个人");
@@ -196,22 +195,23 @@ export default {
       console.log(newSize);
       this.queryInfo.pageSize = newSize;
       this.queryInfo.pageNum = 1;
-      this.selectAllUser();
+      this.selectAllFood();
     },
     // 页码值改变触发
     handleCurrentChange(newPage) {
       this.queryInfo.pageNum = newPage;
       console.log(newPage);
-      this.selectAllUser();
+      this.selectAllFood();
     },
-    editUser(item) {
-      console.log(this.edit.user);
+    editFood(item) {
+      console.log(this.edit.food);
       this.edit.showEdit = false;
-      this.edit.user = item;
+      this.edit.food = item;
       this.edit.showEdit = true;
-      console.log(this.edit.user);
+      console.log( this.edit.showEdit)
+      console.log(this.edit.food);
     },
-    async deleteUser(item) {
+    async deleteFood(item) {
       const confirmResult = await this.$confirm(
         "将永久删除该用户！是否继续？",
         "提示",
@@ -224,16 +224,16 @@ export default {
       if (confirmResult == "cancel") return this.$message.info("已取消删除");
 
       console.log(item);
-      const { data: res } = await this.$http.delete(`/user/${item.id}`);
-      if (res.status == 10009) {
-        this.selectAllUser();
+      const { data: res } = await this.$http.delete(`/food/${item.id}`);
+      if (res.status == 0) {
+        this.selectAllFood();
         return this.$message.success("删除成功！！");
       }
       return this.$message.error("删除失败！！");
       console.log(res);
     },
     async forbidden(item) {
-      const { data: res } = await this.$http.put("/updateUserState", item);
+      const { data: res } = await this.$http.put("/updateFoodState", item);
       console.log(res);
     },
     notShow(bool) {

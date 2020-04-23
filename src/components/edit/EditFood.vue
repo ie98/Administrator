@@ -5,7 +5,7 @@
     :visible.sync="dialogVisible"
     :before-close="handleClose"
   >
-    <div class="register-wrapper">
+ <div class="register-wrapper">
       <div id="register">
         <p class="title">编辑</p>
         <el-form
@@ -16,50 +16,36 @@
           label-width="0"
           class="demo-ruleForm"
         >
-          <el-form-item prop="username">
+  
+    <el-form-item prop="foodname">
             <el-input
-              v-model="ruleForm2.username"
+              v-model="ruleForm2.foodname"
               auto-complete="off"
-              placeholder="请输如用户名"
+              placeholder="请输如食品名"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="password">
+          <el-form-item prop="price">
             <el-input
-              
-              v-model="ruleForm2.password"
+              v-model="ruleForm2.price"
               auto-complete="off"
-              placeholder="输入密码"
+              placeholder="输入价格"
             ></el-input>
           </el-form-item>
 
           <el-form-item>
-              
-            <el-select v-model="ruleForm2.college" style="width:100%" placeholder="请选择专业院校">
+            <el-select
+              v-model="ruleForm2.shopname"
+              style="width:100%"
+              placeholder="请选择店铺"
+            >
               <el-option
-                v-for="item in options"
+                v-for="item in allShop"
                 :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                :label="item.shopname"
+                :value="item.shopname"
               >
               </el-option>
             </el-select>
-          </el-form-item>
-         
-          <el-form-item prop="grade">
-              
-            <el-select v-model="ruleForm2.grade"  style="width:100%" placeholder="请选择年级">
-              <el-option :label="16" :value="16"> </el-option>
-              <el-option :label="17" :value="17"> </el-option>
-              <el-option :label="18" :value="18"> </el-option>
-              <el-option :label="19" :value="19"> </el-option>
-              <el-option :label="20" :value="20"> </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item prop="phone">
-            <el-input
-              v-model="ruleForm2.phone"
-              placeholder="请输入手机号"
-            ></el-input>
           </el-form-item>
 
           <el-form-item>
@@ -76,71 +62,45 @@
 
 <script>
 export default {
-    props:['user'],
+    props:['food'],
   data() {
    
     return {
+      allShop:[],
       //权限信息
       autoArr:'',
         dialogVisible:true,
         notshow:false,
-      ruleForm2: {
-        username: "",
-        password: "",
-        checkPass: "",
-        college: "",
-        grade: 16,
-        phone: ""
+     ruleForm2: {
+        foodname: "",
+        prie: "",
+        shopname: "",
+        img: ""
       },
-      rules2: {
-        // pass: [{ validator: validatePass, trigger: "change" }],
-        username: [
-          { require: true, message: "必须填写用户名", trigger: "blur" },
-          { min: 4, max: 12, message: "长度在4到12个字符之间", trigger: "blur" }
+     rules2: {
+    
+        foodname: [
+          { require: true, message: "必须填写食品名", trigger: "blur" },
+          { min: 1, max: 10, message: "长度在1到10个字符之间", trigger: "blur" }
         ],
-        passwors: [
-          { require: true, message: "必须填写密码", trigger: "blur" },
-          { min: 4, max: 12, message: "长度在8到24个字符之间", trigger: "blur" }
+        shopname: [
+          { require: true, message: "必须填写店铺名", trigger: "blur" },
         ],
-        college: [
-          { require: true, message: "必须选择院校", trigger: "blur" }
-        ],
-        phone:[
-          { require: true, message: "必须填写手机号", trigger: "blur" }
-        ]
+        price: [{ require: true, message: "必须填写价格", trigger: "blur" }],
+        img: [{ require: true, message: "必须填写图片名", trigger: "blur" }]
       },
       flag: true,
-      options: [
-        {
-          value: "计算机",
-          label: "计算机"
-        },
-        {
-          value: "软件工程",
-          label: "软件工程"
-        },
-        {
-          value: "电气",
-          label: "电气"
-        },
-        {
-          value: "网络通信",
-          label: "网络通信"
-        },
-        {
-          value: "信息安全",
-          label: "信息安全"
-        }
-      ]
+   
     };
   },
   created(){
 
-      console.log("123")
-       console.log(this.user)
-      console.log(this.$route)
+      // console.log("123")
+      //  console.log(this.user)
+      // console.log(this.$route)
 
-      this.ruleForm2 = this.user
+      this.ruleForm2 = this.food
+      this.getAllShop()
 
   },
 
@@ -158,7 +118,7 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           const { data: res } = await this.$http.post(
-            "/editUser",
+            "/editFood",
             this.ruleForm2
           );
           console.log(res);
@@ -178,26 +138,29 @@ export default {
     }
   },
 
-  check() {
-    if (!/^1[3456789]\d{9}$/.test(this.ruleForm2.phone)) {
-      this.$message.error("手机号码有误，请重填");
-      return false;
-    } else  if(this.ruleForm2.username == '' || this.ruleForm2.username == null){
-      this.$message.error("用户名不能为空")
-       return false
-  }else if(this.ruleForm2.password == '' || this.ruleForm2.password == null){
-      this.$message.error("密码不能为空")
-       return false
-  }else if(this.ruleForm2.college == '' || this.ruleForm2.college == null){
-      this.$message.error("学院不能为空")
-       return false
-  }else if(this.ruleForm2.grade == '' || this.ruleForm2.grade == null){
-      this.$message.error("年级不能为空")
-       return false
-  }else{
-      return true
-  }
-  },
+   check() {
+    if (
+        this.ruleForm2.foodname == "" ||
+        this.ruleForm2.foodname == null
+      ) {
+        this.$message.error("食品名不能为空");
+        return false;
+      } else if (
+        this.ruleForm2.price == "" ||
+        this.ruleForm2.price == null
+      ) {
+        this.$message.error("价格不能为空");
+        return false;
+      } else if (
+        this.ruleForm2.shopname == "" ||
+        this.ruleForm2.shopname == null
+      ) {
+        this.$message.error("店铺名不能为空");
+        return false;
+      }  else {
+        return true;
+      }
+    },
   cancel(){
     //   this.dialogVisible  = false
     //   setTimeout(()=>{
@@ -212,7 +175,14 @@ export default {
     })
     this.autoArr = res;
     console.log(res)
-  }
+  },
+    async getAllShop() {
+      const { data: res } = await this.$http.get(`/getAllShop`, {
+        params: {}
+      });
+      console.log(res);
+      this.allShop = res;
+    },
 
 
   }

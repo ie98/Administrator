@@ -2,7 +2,7 @@
   <el-dialog
     title="提示"
     :visible.sync="dialogVisible"
-    width="30%"
+    width="10%"
     :before-close="handleClose"
   >
     <div class="register-wrapper">
@@ -88,6 +88,8 @@ export default {
       }
     };
     return {
+      //权限信息
+      autoArr:'',
       dialogVisible: false,
       ruleForm2: {
         username: "",
@@ -209,6 +211,15 @@ export default {
       setTimeout(()=>{
           this.$router.push('/userInfo')
       },300)
+  },
+
+  //获取权限
+  async getAutoArr(){
+    const { data: res } = await this.$http.get('/getAuthority', {
+      params: {id:window.sessionStorage.getItem('id')}
+    })
+    this.autoArr = res;
+    console.log(res)
   }
 
 

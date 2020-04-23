@@ -4,6 +4,7 @@ body,
   height: 100%;
   margin: 0px;
   padding: 0px;
+  min-width: 1366px;
 }
 .el-breadcrumb{
   margin-bottom: 15px;
@@ -16,4 +17,9 @@ body,
 }
 .el-table{
   margin-top: 15px;
+}
+.spanFont{
+  color: blue;
+  text-decoration:underline;
+  cursor: pointer;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <el-container>
       <el-header class="header">
         <el-menu
@@ -10,32 +10,11 @@
           active-text-color="#ffd04b"
           router
         >
-          <el-menu-item index="1">处理中心</el-menu-item>
-          <el-submenu index="2">
-            <template slot="title">用户信息</template>
-            <el-menu-item index="/adminInfo" 
-              >管理员信息</el-menu-item
-            >
-            <el-menu-item index="/userInfo" 
-              >普通用户信息</el-menu-item
-            >
-          </el-submenu>
-          <el-submenu index="3">
-            <template slot="title">座位中心</template>
-            <el-menu-item index="/recordInfo" 
-              >抢座记录</el-menu-item
-            >
-          </el-submenu>
-
-          <el-menu-item index="4"
-            ><a href="https://www.ele.me" target="_blank"
-              >订单管理</a
-            ></el-menu-item
-          >
-           <el-menu-item index="5">
-             <router-link to='/case'>订单管理</router-link>
-            </el-menu-item
-          >
+        
+          <el-menu-item v-for="item in authority" :key="item.id" :index="item.path">{{item.authorityname}}</el-menu-item>
+          
+          
+      
         </el-menu>
         <span> Admin</span>
         </el-header
@@ -118,7 +97,7 @@
 export default {
   data() {
     return {
-
+      authority:[],
       showAllUser: false,
       showAllAdmin: false,
       showAllRecord: false,
@@ -146,7 +125,17 @@ export default {
       
     };
   },
+  created(){
+      this.getAuthorityById()
+  },
   methods: {
+    async getAuthorityById(){
+        const { data: res } = await this.$http.get('/getAuthority', {
+          params: {id :window.sessionStorage.getItem('id')}
+        })
+        this.authority = res
+          console.log(res)
+    },
     async selectAllAdmin() {
       const { data: res } = await this.$http.post("/selectAllAdmin", {});
       console.log(res);

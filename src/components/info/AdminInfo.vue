@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <v-editUser v-if="edit.showEdit" :user='edit.user' @notShowEdit='notShow'></v-editUser> -->
+    <v-editAdmin v-if="edit.showEdit" :admin='edit.admin' @notShowEdit='notShow'></v-editAdmin>
     <router-view></router-view>
     <!-- 面包屑 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -19,6 +19,7 @@
             class="input-with-select"
           >
             <el-button
+            :disabled="disabled.select"
               slot="append"
               icon="el-icon-search"
               @click="selectAdmin"
@@ -27,7 +28,7 @@
         </el-col>
         <el-col :span="4">
           <router-link to="/addAdmin"
-            ><el-button type="primary">添加</el-button></router-link
+            ><el-button :disabled="disabled.add" type="primary">添加</el-button></router-link
           >
         </el-col>
       </el-row>
@@ -63,6 +64,8 @@
               :enterable="false"
             >
               <el-switch
+              :disabled="disabled.forbidden"
+           
                 v-model="scope.row.state"
                 @change="forbidden(scope.row)"
               ></el-switch>
@@ -79,10 +82,11 @@
               :enterable="false"
             >
               <el-button
+                :disabled="disabled.update"
                 type="primary"
                 icon="el-icon-edit"
                 size="small"
-                @click="editUser(scope.row)"
+                @click="editAdmin(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -94,10 +98,11 @@
               :enterable="false"
             >
               <el-button
+              :disabled="disabled.delete"
                 type="danger"
                 icon="el-icon-delete"
                 size="small"
-                @click="deleteUser(scope.row)"
+                @click="deleteAdmin(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -118,18 +123,27 @@
   </div>
 </template>
 <script>
-// import EditUser from "../edit/EditUser";
+import EditAdmin  from "../edit/EditAdmin";
 export default {
-//   components: {
-//     "v-editUser": EditUser
-//   },
+  components: {
+    "v-editAdmin": EditAdmin
+  },
 
   data() {
     return {
-
+//权限信息
+      autoArr:'',
+      //是否显示
+      disabled: {
+        add: true,
+        delete: true,
+        update: true,
+        select: true,
+        forbidden: true
+      },
       edit: {
         showEdit: false,
-        user:{}
+        admin:{}
       },
 
       queryInfo: {
@@ -144,12 +158,14 @@ export default {
   },
   created() {
     this.selectAllAdmin();
+    this.getAutoArr()
   },
   methods: {
     async selectAllAdmin() {
-      const { data: res } = await this.$http.post("/selectAllAdmin", {});
+      const { data: res } = await this.$http.post("/selectAllAdmin", this.queryInfo);
       console.log(res);
-      this.allAdmin = res;
+      this.allAdmin = res.list
+       this.total = res.num;
 
     },
       
@@ -178,19 +194,32 @@ export default {
       console.log(newPage);
       this.selectAllAdmin();
     },
-    editUser(item){
-      console.log(this.edit.user)
+    editAdmin(item){
+      console.log(this.edit.admin)
       this.edit.showEdit = false
-      this.edit.user = item
+      this.edit.admin = item
       this.edit.showEdit = true
-      console.log(this.edit.user)
+      console.log(this.edit.admin)
     },
-    async deleteUser(item) {
+    async deleteAdmin(item) {
+      const confirmResult = await this.$confirm(
+        "将永久删除该用户！是否继续？",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      ).catch(err => err);
+      if (confirmResult == "cancel") return this.$message.info("已取消删除");
+
       console.log(item);
       const { data: res } = await this.$http.delete(`/admin/${item.id}`);
       if (res.status == 10009) {
         this.selectAllAdmin();
+        return this.$message.success("删除成功！！");
       }
+      return this.$message.error("删除失败！！");
       console.log(res);
     },
     async forbidden(item) {
@@ -200,6 +229,29 @@ export default {
     notShow(bool){
       console.log("123")
      this.edit.showEdit = bool
+    },
+   //获取权限
+    async getAutoArr() {
+      const { data: res } = await this.$http.get("/getAuthorityString", {
+        params: { id: window.sessionStorage.getItem("id") }
+      });
+      this.autoArr = res;
+      console.log(res);
+      var strs = new Array(); //定义一数组
+      strs = res.split(","); //字符分割
+      for (var i = 0; i < strs.length; i++) {
+        if(strs[i] == '201'){
+              this.disabled.select = false
+        }else if(strs[i] == '202'){
+              this.disabled.update = false
+        }else if(strs[i] == '203'){
+              this.disabled.add = false
+        }else if(strs[i] == '204'){
+              this.disabled.delete = false
+        }else if(strs[i] == '205'){
+              this.disabled.forbidden = false
+        }
+      }
     }
   }
 };

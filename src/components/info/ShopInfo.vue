@@ -1,10 +1,10 @@
 <template>
   <div>
-    <v-editUser
+    <v-editShop
       v-if="edit.showEdit"
-      :user="edit.user"
+      :shop="edit.shop"
       @notShowEdit="notShow"
-    ></v-editUser>
+    ></v-editShop>
     <router-view></router-view>
     <!-- 面包屑 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -18,7 +18,6 @@
       <el-row :gutter="20">
         <el-col :span="7">
           <el-input
-          
             placeholder="请输入内容"
             v-model="query"
             class="input-with-select"
@@ -27,13 +26,15 @@
               :disabled="disabled.select"
               slot="append"
               icon="el-icon-search"
-              @click="selectUser"
+              @click="selectShop"
             ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addUser"
-            ><el-button :disabled = "disabled.add" type="primary">添加</el-button></router-link
+          <router-link to="/addShop"
+            ><el-button :disabled="disabled.add" type="primary"
+              >添加</el-button
+            ></router-link
           >
         </el-col>
       </el-row>
@@ -43,17 +44,35 @@
         class="table"
         border
         stripe
-        :data="allUser"
+        :data="allShop"
         style="width: 100%;"
       >
         <el-table-column type="index"></el-table-column>
-        <el-table-column prop="username" label="姓名"> </el-table-column>
         <el-table-column prop="id" label="id"> </el-table-column>
-        <el-table-column prop="college" label="学院"> </el-table-column>
-        <el-table-column prop="grade" label="年级"> </el-table-column>
-        <el-table-column prop="password" label="密码"> </el-table-column>
+        <!-- <el-table-column prop="shopid" label="商店ID"> </el-table-column> -->
+        <el-table-column prop="shopname" label="商店名称"> </el-table-column>
+        <el-table-column prop="principal" label="负责人"> </el-table-column>
         <el-table-column prop="phone" label="手机号"> </el-table-column>
-
+        <el-table-column prop="described" label="商店描述">
+          <template slot-scope="scope">
+            {{ scope.row.subDescribed }}
+            <span
+            v-if="scope.row.showButtonDes"
+              size="mini"
+              class="spanFont"
+              @click="showDescribed(scope.row)"
+              >more</span
+            >
+          </template>
+        </el-table-column>
+        <el-table-column prop="notice" label="提示消息">
+          <template slot-scope="scope">
+            {{ scope.row.subNotice }}
+            <span v-if="scope.row.showButtonNotice" size="mini" class="spanFont" @click="showNotice(scope.row)"
+              >more</span
+            >
+          </template>
+        </el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <el-tooltip
@@ -65,7 +84,7 @@
             >
               <el-switch
                 :disabled="disabled.forbidden"
-                v-model="scope.row.state"
+                v-model="scope.row.forbid"
                 @change="forbidden(scope.row)"
               ></el-switch>
             </el-tooltip>
@@ -81,11 +100,11 @@
               :enterable="false"
             >
               <el-button
-              :disabled="disabled.update"
+                :disabled="disabled.update"
                 type="primary"
                 icon="el-icon-edit"
                 size="small"
-                @click="editUser(scope.row)"
+                @click="editShop(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -97,11 +116,11 @@
               :enterable="false"
             >
               <el-button
-              :disabled="disabled.delete"
+                :disabled="disabled.delete"
                 type="danger"
                 icon="el-icon-delete"
                 size="small"
-                @click="deleteUser(scope.row)"
+                @click="deleteShop(scope.row)"
               >
               </el-button>
             </el-tooltip>
@@ -119,17 +138,35 @@
       >
       </el-pagination>
     </el-card>
+    <el-dialog
+      title="详情"
+      :visible.sync="fullRemarks"
+      width="50%"
+      :before-close="handleClose"
+    >
+      <el-form>
+        <el-form-item prop="detail">
+          <el-input :rows="5" type="textarea" v-model="full"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="fullRemarks = false">关闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import EditUser from "../edit/EditUser";
+import EditShop from "../edit/EditShop";
 export default {
   components: {
-    "v-editUser": EditUser
+    "v-editShop": EditShop
   },
 
   data() {
     return {
+      //完整信息
+      fullRemarks: false,
+      full: "",
       //权限信息
       autoArr: "",
       //是否显示
@@ -142,7 +179,7 @@ export default {
       },
       edit: {
         showEdit: false,
-        user: {}
+        shop: {}
       },
 
       queryInfo: {
@@ -150,42 +187,69 @@ export default {
         pageSize: 5
       },
       query: "",
-      allUser: [],
+      allShop: [],
       total: 0,
       as: true
     };
   },
   created() {
-    this.selectAllUser();
-    this.getAutoArr()
+    this.selectAllShop();
+    this.getAutoArr();
   },
   methods: {
-    async selectAllUser() {
+    async selectAllShop() {
       const { data: res } = await this.$http.post(
-        "/selectAllUser",
+        "/selectAllShop",
         this.queryInfo
       );
+
       console.log(res);
-      this.allUser = res.list;
+      this.allShop = res.list;
       this.total = res.num;
-      console.log(this.allUser);
+      for (let index = 0; index < this.allShop.length; index++) {
+        if (
+          this.allShop[index].described == null ||
+          this.allShop[index].described == ""
+        ) {
+          this.allShop[index].described = "";
+          this.allShop[index].showButtonDes = false;
+        } else {
+          this.allShop[index].subDescribed =
+            this.allShop[index].described.slice(0, 15) + "...";
+          this.allShop[index].showButtonDes = true;
+        }
+
+        if (
+          this.allShop[index].notice == null ||
+          this.allShop[index].notice == ""
+        ) {
+          this.allShop[index].notice = "";
+          this.allShop[index].showButtonNotice = false;
+        } else {
+          this.allShop[index].subNotice =
+            this.allShop[index].notice.slice(0, 15) + "...";
+          this.allShop[index].showButtonNotice = true;
+        }
+      
+      }
+      console.log(this.allShop);
       // this.showAllAdmin = false;
       // this.showAllUser = true;
       // this.showAllRecord = false;
     },
-    async selectUser() {
-      const { data: res } = await this.$http.get("/selectUser", {
+    async selectShop() {
+      const { data: res } = await this.$http.get("/selectShop", {
         params: { query: this.query }
       });
       if (res != null) {
-        this.allUser = [];
+        this.allShop = [];
         for (let index = 0; index < res.length; index++) {
-          this.allUser.push(res[index]);
+          this.allShop.push(res[index]);
           console.log(res[index]);
-          console.log(this.allUser);
+          console.log(this.allShop);
         }
-        this.allUser.push(res);
-        console.log("allUser");
+        this.allShop.push(res);
+        console.log("allShop");
         console.log(res);
       } else {
         this.$message.error("没有这个人");
@@ -196,22 +260,22 @@ export default {
       console.log(newSize);
       this.queryInfo.pageSize = newSize;
       this.queryInfo.pageNum = 1;
-      this.selectAllUser();
+      this.selectAllShop();
     },
     // 页码值改变触发
     handleCurrentChange(newPage) {
       this.queryInfo.pageNum = newPage;
       console.log(newPage);
-      this.selectAllUser();
+      this.selectAllShop();
     },
-    editUser(item) {
-      console.log(this.edit.user);
+    editShop(item) {
+      console.log(this.edit.shop);
       this.edit.showEdit = false;
-      this.edit.user = item;
+      this.edit.shop = item;
       this.edit.showEdit = true;
-      console.log(this.edit.user);
+      console.log(this.edit.shop);
     },
-    async deleteUser(item) {
+    async deleteShop(item) {
       const confirmResult = await this.$confirm(
         "将永久删除该用户！是否继续？",
         "提示",
@@ -224,21 +288,33 @@ export default {
       if (confirmResult == "cancel") return this.$message.info("已取消删除");
 
       console.log(item);
-      const { data: res } = await this.$http.delete(`/user/${item.id}`);
-      if (res.status == 10009) {
-        this.selectAllUser();
+      const { data: res } = await this.$http.delete(`/shop/${item.id}`);
+      if (res.status == 0) {
+        this.selectAllShop();
         return this.$message.success("删除成功！！");
       }
       return this.$message.error("删除失败！！");
       console.log(res);
     },
     async forbidden(item) {
-      const { data: res } = await this.$http.put("/updateUserState", item);
+      const { data: res } = await this.$http.put("/updateShopState", item);
       console.log(res);
     },
     notShow(bool) {
       console.log("123");
       this.edit.showEdit = bool;
+    },
+    //显示完整信息
+    showDescribed(value) {
+      this.full = value.described;
+      this.fullRemarks = true;
+    },
+    showNotice(value) {
+      this.full = value.notice;
+      this.fullRemarks = true;
+    },
+    handleClose() {
+      this.fullRemarks = false;
     },
     //获取权限
     async getAutoArr() {
@@ -250,20 +326,22 @@ export default {
       var strs = new Array(); //定义一数组
       strs = res.split(","); //字符分割
       for (var i = 0; i < strs.length; i++) {
-        if(strs[i] == '101'){
-              this.disabled.select = false
-        }else if(strs[i] == '102'){
-              this.disabled.update = false
-        }else if(strs[i] == '103'){
-              this.disabled.add = false
-        }else if(strs[i] == '104'){
-              this.disabled.delete = false
-        }else if(strs[i] == '105'){
-              this.disabled.forbidden = false
+        if (strs[i] == "101") {
+          this.disabled.select = false;
+        } else if (strs[i] == "102") {
+          this.disabled.update = false;
+        } else if (strs[i] == "103") {
+          this.disabled.add = false;
+        } else if (strs[i] == "104") {
+          this.disabled.delete = false;
+        } else if (strs[i] == "105") {
+          this.disabled.forbidden = false;
         }
       }
     }
   }
 };
 </script>
-<style scoped></style>
+<style scoped>
+
+</style>
