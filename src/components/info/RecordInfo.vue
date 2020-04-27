@@ -31,7 +31,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addUser"
+          <router-link to="/recordInfo"
             ><el-button :disabled="disabled.add" type="primary"
               >添加</el-button
             ></router-link
@@ -52,7 +52,7 @@
         <el-table-column prop="id" label="id"> </el-table-column>
         <el-table-column prop="college" label="学院"> </el-table-column>
         <el-table-column prop="grade" label="年级"> </el-table-column>
-        <el-table-column prop="allpeople" label="所有人名称"> </el-table-column>
+        <el-table-column prop="allpeople" width="300" label="所有人名称"> </el-table-column>
         <el-table-column prop="phone" label="手机号"> </el-table-column>
         <el-table-column prop="indate" label="入座时间"> </el-table-column>
 
@@ -140,6 +140,8 @@
       <el-form>
         <el-form-item prop="detail">
           <el-input
+          disabled
+        
             :rows="5"
             type="textarea"
             v-model="ruleForm.remarks"
@@ -207,7 +209,7 @@ export default {
         }
 
        else{
-        this.allRecord[index].subRemarks = this.allRecord[index].remarks.slice(0, 8) + "。。。";
+        this.allRecord[index].subRemarks = this.allRecord[index].remarks.slice(0, 8) + "...";
          this.allRecord[index].showRemarks = true
        }
 

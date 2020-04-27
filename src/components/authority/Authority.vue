@@ -16,7 +16,7 @@
             class="input-with-select"
           >
             <el-button
-              :disabled="disabled.select"
+              :disabled="disabled.queryRole"
               slot="append"
               icon="el-icon-search"
               @click="selectRole"
@@ -24,8 +24,8 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addRole"
-            ><el-button :disabled = "disabled.add" type="primary">添加</el-button></router-link
+          <router-link v-if="disabled.addRole == false" to="/addRole"
+            ><el-button :disabled = "disabled.addRole" type="primary">添加</el-button></router-link
           >
         </el-col>
       </el-row>
@@ -69,7 +69,7 @@
               :enterable="false"
             >
               <el-button
-              :disabled="disabled.update"
+              :disabled="disabled.updateRole"
                 type="primary"
                 icon="el-icon-edit"
                 size="small"
@@ -85,7 +85,7 @@
               :enterable="false"
             >
               <el-button
-              :disabled="disabled.delete"
+              :disabled="disabled.deleteRole"
                 type="danger"
                 icon="el-icon-delete"
                 size="small"
@@ -94,7 +94,7 @@
               </el-button>
             </el-tooltip>
             <el-button
-            :disabled="disabled.update"
+            :disabled="disabled.updateAuto"
               type="success"
               label=" "
               @click="showSetRightDialog(scope.row)"
@@ -159,9 +159,12 @@ export default {
       //是否显示
       disabled: {
        
-        delete: true,
-        update: true,
-        add:true
+        deleteRole: true,
+        updateRole: true,
+        addRole:true,
+        queryRole: true,
+        deleteAuto:true,
+        updateAuto:true,
        
       },
       authority: [],
@@ -283,7 +286,7 @@ export default {
     },
     //删除权限
     async deleteAuthorityByid(v1, v2, v3) {
-      if(this.disabled.delete == true){
+      if(this.disabled.deleteAuto == true){
           return this.$message.error("没有删除的权限")
       }
        
@@ -315,8 +318,8 @@ export default {
         this.$message.success("删除成功！");
         // this.selectAllAutonrityInfo()  //全部刷新
         v1.authorities = res.authorities; //局部刷新
-        this.disabled.update = true
-        this.disabled.delete = true
+        // this.disabled.update = true
+        // this.disabled.delete = true
         this.getAutoArr()
 
       } else{
@@ -326,10 +329,12 @@ export default {
     },
     //分配权限
     showSetRightDialog(values) {
+      console.log("1224")
+      console.log(values)
       this.updateAuto.roleId = values.id
       this.allAuthorityTree();
-      console.log(this.allAuthorityList);
-      console.log(values.authorities.length)
+      if(values.authorities == null)
+       return this.showSetRightDialogVisible = true;
       for (var index = 0; index < values.authorities.length; index++) {
         console.log('33333333')
         this.getLeafKeys(values.authorities[index], this.defKeys);
@@ -391,6 +396,7 @@ export default {
     },
   //获取权限
     async getAutoArr() {
+        this.reset()
       const { data: res } = await this.$http.get("/getAuthorityString", {
         params: { id: window.sessionStorage.getItem("id") }
       });
@@ -400,18 +406,38 @@ export default {
       strs = res.split(","); //字符分割
       for (var i = 0; i < strs.length; i++) {
         if(strs[i] === '301'){
-              this.disabled.update = false
+              this.disabled.addRole = false
               console.log('301')
         }else
-        if(strs[i] == '303'){
-              this.disabled.delete = false
+        if(strs[i] == '302'){
+              this.disabled.deleteRole = false
+              console.log('302')
+        }else
+         if(strs[i] == '303'){
+              this.disabled.updateRole = false
               console.log('303')
         }else
-         if(strs[i] == '304'){
-              this.disabled.add = false
+        if(strs[i] == '304'){
+              this.disabled.queryRole = false
               console.log('304')
+        }else
+        if(strs[i] == '305'){
+              this.disabled.deleteAuto = false
+              console.log('305')
+        }else
+        if(strs[i] == '306'){
+              this.disabled.updateAuto = false
+              console.log('306')
         }
       }
+    },
+    reset(){
+      this.disabled.deleteRole = true
+       this.disabled.updateRole = true
+        this.disabled.addRol = true
+        this.disabled.queryRole = true
+        this.disabled.deleteAuto = true
+        this.disabled.updateAuto = true
     }
   }
 };

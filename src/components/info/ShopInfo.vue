@@ -31,7 +31,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addShop"
+          <router-link v-if="disabled.add == false" to="/addShop"
             ><el-button :disabled="disabled.add" type="primary"
               >添加</el-button
             ></router-link
@@ -303,6 +303,7 @@ export default {
     notShow(bool) {
       console.log("123");
       this.edit.showEdit = bool;
+      this.selectAllShop()
     },
     //显示完整信息
     showDescribed(value) {
@@ -318,6 +319,7 @@ export default {
     },
     //获取权限
     async getAutoArr() {
+      this.reset()
       const { data: res } = await this.$http.get("/getAuthorityString", {
         params: { id: window.sessionStorage.getItem("id") }
       });
@@ -326,18 +328,26 @@ export default {
       var strs = new Array(); //定义一数组
       strs = res.split(","); //字符分割
       for (var i = 0; i < strs.length; i++) {
-        if (strs[i] == "101") {
-          this.disabled.select = false;
-        } else if (strs[i] == "102") {
-          this.disabled.update = false;
-        } else if (strs[i] == "103") {
+        if (strs[i] == "401") {
           this.disabled.add = false;
-        } else if (strs[i] == "104") {
+        } else if (strs[i] == "402") {
           this.disabled.delete = false;
-        } else if (strs[i] == "105") {
+        } else if (strs[i] == "403") {
+          this.disabled.update = false;
+        } else if (strs[i] == "404") {
+          this.disabled.select = false;
+        } else if (strs[i] == "405") {
           this.disabled.forbidden = false;
         }
       }
+    },
+    reset(){
+      this.disabled.add = true
+       this.disabled.delete = true
+        this.disabled.update = true
+        this.disabled.select = true
+        this.disabled.forbidden = true
+       
     }
   }
 };

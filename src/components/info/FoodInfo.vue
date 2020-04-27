@@ -18,7 +18,7 @@
       <el-row :gutter="20">
         <el-col :span="7">
           <el-input
-          
+        
             placeholder="请输入内容"
             v-model="query"
             class="input-with-select"
@@ -32,7 +32,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addFood"
+          <router-link v-if="disabled.add == false" to="/addFood" 
             ><el-button :disabled = "disabled.add" type="primary">添加</el-button></router-link
           >
         </el-col>
@@ -53,6 +53,19 @@
         <el-table-column prop="price" label="价格"> </el-table-column>
         <el-table-column prop="shopname" label="商店名称"> </el-table-column>
           <el-table-column prop="img" label="图片名称"> </el-table-column>
+          <el-table-column  label="标签名称">
+          
+             <template  slot-scope = "scope">
+              
+               <span v-for="item in scope.row.tagDetail" :key="item.id">
+              <el-tag size="mini" v-if="item.level === 0">{{item.tagname}}</el-tag>
+              <el-tag size="mini" type="success" v-else-if="item.level === 1">{{item.tagname}}</el-tag>
+              <el-tag type="warning" size="mini" v-else-if="item.level === 2">{{item.tagname}}</el-tag>
+              <el-tag type="danger" size="mini" v-else-if="item.level === 3">{{item.tagname}}</el-tag>
+              <el-tag type="info" size="mini" v-else-if="item.level >= 4">{{item.tagname}}</el-tag>
+               </span>
+          </template>
+      </el-table-column>
           <el-table-column label="状态">
           <template slot-scope="scope">
             <el-tooltip
@@ -167,6 +180,16 @@ export default {
       console.log(res);
       this.allFood = res.list;
       this.total = res.num;
+      this.allFood.forEach(element => {
+        if(element.tagList !==null || element.tagList !== '' ){
+           let lastTag = []
+            element.lastTag = lastTag
+            element.tagList.forEach(item =>{
+            lastTag.push(item[item.length-1])
+           })
+        }
+       
+      });
       console.log(this.allFood);
       // this.showAllAdmin = false;
       // this.showAllUser = true;
@@ -242,6 +265,7 @@ export default {
     },
     //获取权限
     async getAutoArr() {
+      this.reset()
       const { data: res } = await this.$http.get("/getAuthorityString", {
         params: { id: window.sessionStorage.getItem("id") }
       });
@@ -250,18 +274,26 @@ export default {
       var strs = new Array(); //定义一数组
       strs = res.split(","); //字符分割
       for (var i = 0; i < strs.length; i++) {
-        if(strs[i] == '101'){
-              this.disabled.select = false
-        }else if(strs[i] == '102'){
-              this.disabled.update = false
-        }else if(strs[i] == '103'){
-              this.disabled.add = false
-        }else if(strs[i] == '104'){
-              this.disabled.delete = false
-        }else if(strs[i] == '105'){
-              this.disabled.forbidden = false
+        if (strs[i] == "501") {
+          this.disabled.add = false;
+        } else if (strs[i] == "502") {
+          this.disabled.delete = false;
+        } else if (strs[i] == "503") {
+          this.disabled.update = false;
+        } else if (strs[i] == "504") {
+          this.disabled.select = false;
+        } else if (strs[i] == "505") {
+          this.disabled.forbidden = false;
         }
       }
+    },
+    reset(){
+      this.disabled.add = true
+       this.disabled.delete = true
+        this.disabled.update = true
+        this.disabled.select = true
+        this.disabled.forbidden = true
+       
     }
   }
 };

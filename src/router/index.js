@@ -8,6 +8,8 @@ import Case from '../components/Case.vue'
 import AdminInfo from '../components/info/AdminInfo.vue'
 import UserInfo from '../components/info/UserInfo.vue'
 import RecordInfo from '../components/info/RecordInfo.vue'
+import TagInfo from '../components/info/TagInfo.vue'
+import TagRelation from '../components/info/TagRelation.vue'
 import FoodRecordInfo from '../components/info/FoodRecordInfo.vue'
 import AddUser from '../components/add/AddUser.vue'
 import AddFood from '../components/add/AddFood.vue'
@@ -125,6 +127,15 @@ const routes = [
           }
         ]
       },
+      {
+        path:'/tagInfo',
+        component:TagInfo,
+      },
+      {
+        path:'/tagRelation',
+        component:TagRelation,
+      },
+
       
     ]
   },

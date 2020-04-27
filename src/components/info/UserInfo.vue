@@ -24,6 +24,7 @@
             class="input-with-select"
           >
             <el-button
+           
               :disabled="disabled.select"
               slot="append"
               icon="el-icon-search"
@@ -32,8 +33,11 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addUser"
-            ><el-button :disabled = "disabled.add" type="primary">添加</el-button></router-link
+          <router-link v-if="disabled.add == false" to="/addUser" >
+          <div @click.stop="">
+            <el-button :disabled = "disabled.add" type="primary">添加</el-button>
+          </div>
+            </router-link
           >
         </el-col>
       </el-row>

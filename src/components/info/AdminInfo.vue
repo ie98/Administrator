@@ -27,7 +27,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <router-link to="/addAdmin"
+          <router-link v-if="disabled.add == false" to="/addAdmin"
             ><el-button :disabled="disabled.add" type="primary">添加</el-button></router-link
           >
         </el-col>

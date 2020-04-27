@@ -94,7 +94,7 @@
           <el-form-item>
             <el-button @click="cancel">取 消</el-button>
             <el-button type="primary" @click="submitForm('ruleForm2')"
-              >注册</el-button
+              >添加</el-button
             >
           </el-form-item>
         </el-form>
@@ -176,6 +176,7 @@ export default {
             //     });
             //   }, 300);
             //打开内层
+            this.dialogVisible = false
             this.innerVisible = true
             } else {
               this.$message(res.message);
@@ -268,7 +269,10 @@ export default {
     },
     onSuccess(v1,file){
         console.log(file.type)
-        this.ruleForm2.img =  Math.random() + file.name
+        // this.ruleForm2.img =  Math.random() + file.name
+        this.dialogVisible = false
+        this.innerVisible = false
+
     },
     //查询图片名称是否存在
      submitUpload() {

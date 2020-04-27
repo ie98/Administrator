@@ -37,7 +37,7 @@
           <el-form-item>
             <el-button @click="cancel">取 消</el-button>
             <el-button type="primary" @click="submitForm('ruleForm2')"
-              >注册</el-button
+              >保存</el-button
             >
           </el-form-item>
         </el-form>
@@ -95,6 +95,7 @@ export default {
     if (this.check()) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          console.log(this.ruleForm2)
           const { data: res } = await this.$http.post(
             "/editRole",
             this.ruleForm2
